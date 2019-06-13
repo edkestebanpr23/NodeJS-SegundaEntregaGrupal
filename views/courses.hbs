@@ -1,0 +1,101 @@
+{{>header}}
+
+<div class="container-fluid">
+    <table class="table">
+        <h2>Cursos disponibles</h2>
+        <p>cursos no inscritos, es decir, aquéllos a los que te puedes inscribir</p>
+        <br>
+        <thead class="thead-dark">
+            <th>Nombre del curso</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Modalidad</th>
+            <th>Horas</th>
+            <th>Estado</th>
+            <th>Nº matriculados</th>
+            <th></th>
+            <th></th>
+        </thead>
+
+        {{#each courses}}
+        <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.price}}</td>
+            <td>{{this.modality}}</td>
+            <td>{{this.hours}}</td>
+            <td>{{this.status}}</td>
+            <td>{{this.students.length}}</td>
+            {{#if_eq ../user.role "coordinador"}}
+            <td>
+                <button class="btn btn-secondary" id="select_course" onclick="change_state({{this.id}})">Cambiar estado</button>
+            </td>
+            {{/if_eq}}
+
+            {{#if_eq ../user.role "aspirante"}}
+            <td>
+                <button class="btn btn-success" id="select_course" onclick="cc({{this.id}}, {{../user.id}})">Matricular</button>
+            </td>
+            {{/if_eq}}
+        </tr>
+
+        {{#if_eq ../user.role "coordinador"}}
+        {{#if_M this.students.length 0}}
+        <th></th>
+        <th></th>
+        <th>Estudiantes</th>
+        {{#each this.students}}
+        <tr>
+            <td></td>
+            <td></td>
+            <td>identificador: {{this.id}} | nombre: {{this.name}}, {{this.mail}}</td>
+            <td><button class="btn btn-danger" onclick="del_user({{../this.id}}, {{this.id}})">Eliminar</button></td>
+        </tr>
+        <br>
+        {{/each}}
+        {{/if_M}}
+        {{/if_eq}}
+
+        {{/each}}
+    </table>
+
+    {{#if user.name}}<br><br>{{else}}
+    <br><br>
+    <p>Para matricularte en un curso debes estar <a href="/register">registrado</a> e <a href="/login">iniciar
+            sesión</a></p>
+    {{/if}}
+    {{#if user.name}}
+    <a class="btn btn-secondary" href="/profile?id={{user.id}}">atrás</a>
+    {{/if}}
+</div>
+
+
+{{>footer}}
+<script>
+    function cc(id, uid) {
+        $.post("/courses", { id: id.toString(), action: "add" }, function (data) {
+            // console.log(data);
+        }).done(function () {
+            alert("Inscripción realizada con éxito!");
+            location.replace("/profile?id=" + uid);
+        });
+    }
+
+    function change_state(id) {
+        $.post("/courses", { id: id.toString(), action: "ch_state" }, function (data) {
+            // console.log(data);
+        }).done(function () {
+            alert("Estado del curso con id " + id + " cambiado con éxito!");
+            location.reload();
+        });
+    }
+
+    function del_user(id, uid) {
+        $.post("/courses", { id: id.toString(), uid: uid.toString(), action: "del_user" }, function (data) {
+            // console.log(data);
+        }).done(function () {
+            alert("Estudiante con id " + uid + " eliminado con éxito del curso con id " + id + "!");
+            location.replace("/profile?id=" + uid);
+        });
+    }
+</script>

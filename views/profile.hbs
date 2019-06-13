@@ -1,0 +1,118 @@
+{{>header}}
+
+<div class="container-fluid">
+    <h2>Datos usuario <small>{{user.name}}</small></h2>
+    <div class="container-fluid">
+        <table class="table">
+            <thead class="thead-dark">
+                <th>Nombre</th>
+                <th>Identificador</th>
+                <th>Mail</th>
+                <th>Teléfono</th>
+                <th>Password</th>
+                <th>Rol</th>
+            </thead>
+            <tr>
+                <td>{{user.name}}</td>
+                <td>{{user.id}}</td>
+                <td>{{user.mail}}</td>
+                <td>{{user.phone}}</td>
+                <td>{{user.pass}}</td>
+                <td>{{user.role}}</td>
+            </tr>
+        </table>
+
+    </div>
+
+</div>
+<br><br><br>
+<div class="container-fluid">
+    {{#if_eq user.role "coordinador"}}
+    <form action="/new_course" method="post" autocomplete="on">
+        <h2> Nuevo Curso</h2>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label"> Nombre</label>
+            <div class="col-sm-6">
+                <input name="name" class="form-control" required="required" type="text" placeholder="Nombre" />
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label"> id</label>
+            <div class="col-sm-6">
+                <input name="id" class="form-control" required="required" type="number"
+                    placeholder="número identificador" />
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label"> Descripción</label>
+            <div class="col-sm-6">
+                <input name="desc" class="form-control" required="required" type="text" placeholder="Descripción" />
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label"> Valor</label>
+            <div class="col-sm-6">
+                <input name="price" class="form-control" required="required" type="text" placeholder="Valor" />
+
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label"></label>
+            <button class="btn btn-primary col-sm-1">Crear</button>
+        </div>
+    </form>
+    {{else}}
+    <h2>Cursos inscritos</h2>
+    <table class="table">
+        <thead class="thead-dark">
+            <th>Nombre del curso</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Modalidad</th>
+            <th>Horas</th>
+            <th>Estado</th>
+            <th></th>
+        </thead>
+        {{#each courses}}
+        <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.price}}</td>
+            <td>{{this.modality}}</td>
+            <td>{{this.hours}}</td>
+            <td>{{this.status}}</td>
+            <td>
+                <button class="btn btn-danger" id="select_course" onclick="cc2({{this.id}})">Eliminar</button>
+            </td>
+        </tr>
+        {{/each}}
+    </table>
+    {{/if_eq}}
+</div>
+
+<br>
+<div class="container-fluid">
+    <div class="row">
+        <a class="btn btn-success" href="/profile_edit?id={{user.id}}">Editar datos personales</a>&nbsp;&nbsp;
+        <a class="btn btn-success" href="/courses">Ver todos cursos</a>&nbsp;&nbsp;
+        {{!-- <a class="btn btn-success" href="/login">Login</a>&nbsp;&nbsp;
+        <a class="btn btn-primary" href="/register">Register</a>&nbsp;&nbsp;
+        <a class="btn btn-info" href="/courses">Ver cursos</a> --}}
+    </div>
+</div>
+
+<script>
+    function cc2(id) {
+        $.post("/courses", { id: id.toString(), action: "del" }, function (data) {
+            // console.log(data);
+        }).done(function () {
+            alert("Inscripción eliminada con éxito!");
+            location.reload();
+        });
+    }
+</script>
+
+{{>footer}}

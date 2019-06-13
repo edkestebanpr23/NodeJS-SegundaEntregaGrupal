@@ -1,0 +1,53 @@
+{{>header}}
+
+<div class="container-fluid">
+    <h2>Datos actuales</h2>
+    <table class="table">
+        <thead class="thead-dark">
+            <th>Nombre</th>
+            <th>Identificador</th>
+            <th>Mail</th>
+            <th>Teléfono</th>
+            <th>Password</th>
+            <th>Rol</th>
+            </tr>
+            <tr>
+                <td>{{user.name}}</td>
+                <td>{{user.id}}</td>
+                <td>{{user.mail}}</td>
+                <td>{{user.phone}}</td>
+                <td>{{user.pass}}</td>
+                <td>{{user.role}}</td>
+            </tr>
+    </table>
+
+    <br><br>
+
+    <form action="/profile_edit" method="post" autocomplete="on">
+        <h2> Editar datos personales</h2>
+        <div class="form-group">
+            <label> Tu nombre</label>
+            <input class="form-control" name="name" type="text" placeholder="Nombre" />
+        </div>
+        <div class="form-group">
+            <label> Tu email</label>
+            <input class="form-control" name="mail" type="text" placeholder="Email" />
+        </div>
+        <div class="form-group">
+            <label> Tu teléfono</label>
+            <input class="form-control" name="phone" type="number" placeholder="Telefono" />
+        </div>
+        <div class="form-group">
+            <label> Tu password</label>
+            <input class="form-control" name="pass" type="password" placeholder="password" />
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary">Actualizar datos</button>
+        </div>
+    </form>
+
+    <a class="btn btn-secondary" href="/profile?id={{user.id}}">atrás</a>
+</div>
+
+
+{{>footer}}

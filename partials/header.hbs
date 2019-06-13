@@ -1,0 +1,25 @@
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!--Bootstrap css -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+
+    <title>primer sprint grupal</title>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <h1><a href="/">Primer Sprint Grupal</a></h1>
+        {{#if user.name}}
+        <h5>{{>user}}</h5>
+        <h5><a href="/logout?id=" {{user.id}}>cerrar sesión</a></h5>
+        {{/if}}
+    </div>
+
+    <br>
+    <hr><br>
