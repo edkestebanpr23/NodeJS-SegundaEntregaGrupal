@@ -128,26 +128,28 @@ app.get("/logout", async (req, res) => {
 app.get("/register", (req, res) => {
     res.render("register");
 });
-app.post("/register", (req, res) => {
-    console.log(req.body);
-    try {
-        new_user = new User(req.body.name,
-                            req.body.id,
-                            req.body.mail,
-                            req.body.phone,
-                            req.body.pass,
-                            "aspirante",
-                            []
-        );
-        fncs.add_user(new_user);
-        users.push(new_user);
 
-        res.render("index", {
-            alert: "Usuario creado con éxito!"
-        });
+app.post("/register", async (req, res) => {
+    try {
+        const repetido = await User.findOne({ id: req.body.id });
+        const new_user = new User(req.body);
+        if(repetido === null){
+            await new_user.save();
+            res.render("register", {
+                alert: "Usuario creado con éxito!"
+            });
+        }
+        else{
+            res.render("register", {
+                alert: "Ya existe un usuario con este ID"
+            });
+            
+        }     
+        //fncs.add_user(new_user);
+        //users.push(new_user);
     }
     catch (err) {
-        console.log("error while registering :\n"+err);
+        console.log("Error al registrar:\n"+err);
         res.render("register", {
             alert: "Error registrando nuevo usuario!"
         });
