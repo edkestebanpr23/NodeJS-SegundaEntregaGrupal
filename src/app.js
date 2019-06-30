@@ -13,27 +13,59 @@ mongoose.connect('mongodb://localhost/bd-aplicacion')
     .then(db => console.log('Conectado a la BD'))
     .catch(err => console.log(err));
 
-var User = require("../models/user");
-var Course = require("../models/course");
+var User = require('../models/user');
+var Course = require('../models/course');
+var Logged = require('../models/logged');
+//var User = require("../models/user");
+//var Course = require("../models/course");
 users = [];
 courses = [];
-courses.push(new Course(1, "curso1",
-                        "descripcion",
-                        "20 dolares",
-                        "presencial",
-                        "30 horas",
-                        "disponible", []));
-courses.push(new Course(2, "curso2",
-                        "descripcion2",
-                        "40 dolares",
-                        "a distancia",
-                        "100 horas",
-                        "disponible", []));
+
+//Inicializacion de una BD virgen
+const queryUsers = User.estimatedDocumentCount( async (err,count) => {
+    if(count == 0){
+        const nuevoCoordinador = new User({
+            name: 'Coordinador1',
+            id: 0,
+            mail: 'coordinador@tdea.com',
+            phone: 12345,
+            pass: 'admin',
+            role: 'coordinador',
+            courses: []
+        });
+        await nuevoCoordinador.save();
+        console.log('No se encontraron usuarios previos. Puede loguearse con el id: 0 y pass: admin');
+    }
+    else{
+        console.log('Se han encontrado usuarios guardados en la base de datos');
+    }
+});
+
+//Inicializacion de una BD virgen
+const queryCourses = Course.estimatedDocumentCount( async (err,count) => {
+    if(count == 0){
+        const nuevoCurso = new Course({
+            id: 0,
+            name: 'Curso por defecto',
+            description: 'Placeholder para probar la inserción',
+            price: -1,
+            modality: 'nocturna',
+            hours: 0,
+            status: 'no disponible',
+            students: []
+        });
+        await nuevoCurso.save();
+        console.log('No se encontraron cursos previos.');
+    }
+    else{
+        console.log('Se han encontrado cursos guardados en la base de datos');
+    }
+});
 global.current_user = null;
 
 //settings
 app.set('port', process.env.PORT || 3000); //tomar puerto del sistema o 3000
-app.set('views', path.join(__dirname, 'views')); //localizacion de views
+//app.set('views', path.join(__dirname, 'views')); //localizacion de views
 app.set("view engine", "hbs");
 
 //middlewares - funcion ejecutada antes de las rutas
@@ -62,10 +94,23 @@ app.post("/calculos", (req, res) => {
 app.get("/login", (req, res) => {
     res.render("login");
 });
-app.post("/login", (req, res) => {
-    if (fncs.log_user(req.body.id)) {
-        global.current_user = fncs.find_user(req.body.id);
+
+app.post("/login", async (req, res) => {
+    const id = req.body.id;
+    const user = await User.findOne({ id: id });
+    if (user !== null) {
+        global.current_user = user;
         console.log(global.current_user.id);
+        const logged_user = new Logged({
+            name: user.name,
+            id: user.id,
+            mail: user.mail,
+            phone: user.phone,
+            pass: user.pass,
+            role: user.role,
+            courses: user.courses
+        });
+        await logged_user.save();
         res.redirect("/profile?id="+req.body.id);
     }
     else {
@@ -73,8 +118,9 @@ app.post("/login", (req, res) => {
     }
 });
 
-app.get("/logout", (req, res) => {
-    fncs.logout_user(req.body.id);
+app.get("/logout", async (req, res) => {
+    await Logged.remove({ id: global.current_user.id });
+    //fncs.logout_user(req.body.id);
     global.current_user = null;
     res.redirect("/");
 });
@@ -108,14 +154,15 @@ app.post("/register", (req, res) => {
     }
 });
 
-app.get("/profile", (req, res) => {
-    if (!fncs.is_logged(req.query.id) && global.current_user.role != "coordinador") {
+app.get("/profile", async (req, res) => {
+    const user = await User.findOne({id: req.query.id});
+    if (user === null && global.current_user.role != "coordinador") {
         res.redirect("*");
     }
     else {
         res.render("profile", {
-            user: fncs.find_user(req.query.id),
-            courses: fncs.get_user_courses(fncs.find_user(req.query.id))
+            user: user,
+            courses: user.courses  //fncs.get_user_courses(fncs.find_user(req.query.id))
         });
     }
 });

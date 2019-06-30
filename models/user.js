@@ -8,10 +8,10 @@ const UserSchema = new Schema({
     mail: { type : String , required : true },
     phone: { type : Number , required : true },
     pass: { type : String , required : true },
-    role: { type: String, default: 'Aspirante' },
+    role: { type: String, default: 'aspirante' },
     courses: [{ type: Schema.Types.ObjectId, ref: 'courses' }]
 });
-
+/*
 class User {
     constructor(name, id, mail, phone, pass, role, courses) {
         this.name = name;
@@ -23,6 +23,5 @@ class User {
         this.courses = courses;
     }
 }
-
+module.exports = User; */
 module.exports = mongoose.model('users', UserSchema); //nombre coleccion y esquema a usar
-module.exports = User;

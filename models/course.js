@@ -11,11 +11,11 @@ const CourseSchema = new Schema({
     hours: Number,
     status: {
         type: String,
-        default:'Disponible'
+        default:'disponible'
     },
     students: [{ type: Schema.Types.ObjectId, ref: 'users' }]
 });
-
+/*
 class Course {
     constructor(id, name, description, price, modality, hours, status, students) {
         this.id = id;
@@ -28,6 +28,6 @@ class Course {
         this.students = students;
     }
 }
-
+module.exports = Course;*/
 module.exports = mongoose.model('courses', CourseSchema); //nombre coleccion y esquema a usar
-module.exports = Course;
+

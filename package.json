@@ -9,16 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/edkestebanpr23/Entrega2Grupal.git"
+    "url": "git+https://github.com/JchavesM/NodeJS-SegundaEntregaGrupal.git"
   },
   "keywords": [],
   "author": "URSUS",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/edkestebanpr23/Entrega2Grupal/issues"
+    "url": "https://github.com/JchavesM/NodeJS-SegundaEntregaGrupal/issues"
   },
-  "homepage": "https://github.com/edkestebanpr23/Entrega2Grupal#readme",
+  "homepage": "https://github.com/JchavesM/NodeJS-SegundaEntregaGrupal#readme",
   "dependencies": {
+    "bcrypt": "^3.0.6",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "hbs": "^4.0.4",

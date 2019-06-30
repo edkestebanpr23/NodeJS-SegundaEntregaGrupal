@@ -1,4 +1,7 @@
 const fs = require("fs");
+const mongoose = require('mongoose');
+var User = require('../models/user');
+var Course = require('../models/course');
 
 const add_user = (user) => {
     let users = JSON.parse(fs.readFileSync("./users.json"));
@@ -184,6 +187,7 @@ const logout_user = (id) => {
 }
 
 const is_logged = (id) => {
+    //let users = JSON.parse(fs.readFileSync("./logged.json"));
     let users = JSON.parse(fs.readFileSync("./logged.json"));
     if (user = users.find(u => u.id == id)) {
         return true;
