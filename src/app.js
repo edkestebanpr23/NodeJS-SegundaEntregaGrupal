@@ -172,14 +172,17 @@ app.get("/profile", async (req, res) => {
 app.get("/profile_edit", (req, res) => {
     res.render("profile_edit");
 });
-app.post("/profile_edit", (req, res) => {
-    var args = {};
-    if (req.body.name != "") { global.current_user.name = args["name"] = req.body.name; }
-    if (req.body.mail != "") { global.current_user.mail = args["mail"] = req.body.mail; }
-    if (req.body.pass != "") { global.current_user.pass = args["pass"] = req.body.pass; }
-    if (req.body.phone != "") { global.current_user.phone = args["phone"] = req.body.phone; }
 
-    fncs.modify_user(global.current_user, args);
+app.post("/profile_edit", async (req, res) => {
+    var user = await User.findOne({id: global.current_user.id});
+    if (req.body.name != "" && typeof req.body.name == 'string') { global.current_user.name = user.name = req.body.name; }
+    if (req.body.mail != "" && typeof req.body.mail == 'string') { global.current_user.mail = user.mail = req.body.mail; }
+    if (req.body.pass != "" && typeof req.body.pass == 'string') { global.current_user.pass = user.pass = req.body.pass; }
+    if (req.body.phone != "" && typeof req.body.phone == 'number') { global.current_user.phone = user.phone = req.body.phone; }
+
+    await user.save();
+    //fncs.modify_user(global.current_user, args);
+    //el usuario en logged users queda con info desactualizada, aunque como solo importa su id (inmutable) no hay problema
     res.redirect("/profile?id="+global.current_user.id);
 });
 
