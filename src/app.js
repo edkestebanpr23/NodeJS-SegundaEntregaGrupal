@@ -5,6 +5,13 @@ const hbs = require("hbs");
 require("./helpers");
 const body_parser = require("body-parser");
 const fncs = require("./functions");
+const morgan = require('morgan');
+const mongoose = require('mongoose');
+
+//connecting to the DB
+mongoose.connect('mongodb://localhost/bd-aplicacion')
+    .then(db => console.log('Conectado a la BD'))
+    .catch(err => console.log(err));
 
 var User = require("../models/user");
 var Course = require("../models/course");
@@ -24,11 +31,16 @@ courses.push(new Course(2, "curso2",
                         "disponible", []));
 global.current_user = null;
 
+//settings
+app.set('port', process.env.PORT || 3000); //tomar puerto del sistema o 3000
+app.set('views', path.join(__dirname, 'views')); //localizacion de views
+app.set("view engine", "hbs");
+
+//middlewares - funcion ejecutada antes de las rutas
+app.use(morgan('dev')); //permite ver respuestas del servidor al cliente
 app.use(express.static(path.join(__dirname, "../public")));
 hbs.registerPartials(path.join(__dirname, "../partials"));
 app.use(body_parser.urlencoded({extended: false}));
-
-app.set("view engine", "hbs");
 
 app.get("/", (req, res) => {
     res.render("index", {
@@ -182,6 +194,7 @@ app.get("*", (req, res) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log("App listening on port 3000");
-});
+//starting the server
+app.listen(app.get('port'), () => {
+    console.log(`Server on port ${app.get('port')}`);
+})

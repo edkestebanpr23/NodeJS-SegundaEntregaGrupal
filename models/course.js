@@ -1,3 +1,21 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const UserSchema = require('./user');
+
+const CourseSchema = new Schema({
+    id: { type : Number , unique : true, required : true, dropDups: true },
+    name: { type : String , required : true },
+    description: { type : String , required : true },
+    price: { type : Number , required : true },
+    modality: String,
+    hours: Number,
+    status: {
+        type: String,
+        default:'Disponible'
+    },
+    students: [{ type: Schema.Types.ObjectId, ref: 'users' }]
+});
+
 class Course {
     constructor(id, name, description, price, modality, hours, status, students) {
         this.id = id;
@@ -11,4 +29,5 @@ class Course {
     }
 }
 
+module.exports = mongoose.model('courses', CourseSchema); //nombre coleccion y esquema a usar
 module.exports = Course;
