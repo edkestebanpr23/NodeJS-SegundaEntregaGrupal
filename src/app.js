@@ -198,6 +198,7 @@ app.get("/courses", (req, res) => {
     }
     res.render("courses", args);
 });
+
 app.post("/courses", (req, res) => {
     try {
         if (req.body.action == "add") {
