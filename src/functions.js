@@ -68,12 +68,15 @@ const get_user_courses = (user) => {
     for (var c = 0; c < user.courses.length; c++) {
         courses.push(find_course(user.courses[c]));
     }
+    console.log(courses);
     return courses;
-}
+};
 
-const get_all_course_users = () => {
-    let courses = JSON.parse(fs.readFileSync("./courses.json"));
-    let users = JSON.parse(fs.readFileSync("./users.json"));
+const get_all_course_users = async () => {
+    //let courses = JSON.parse(fs.readFileSync("./courses.json"));
+    let courses = await Course.find();
+    //let users = JSON.parse(fs.readFileSync("./users.json"));
+    let users = await User.find();
     var res = [];  // array containing students for each existing course
     for (var c = 0; c < courses.length; c++) {
         res.push(new Array(courses[c].students.length));
@@ -82,10 +85,8 @@ const get_all_course_users = () => {
             res[c][j] = find_user(courses[c].students[j].id);
         }
     }
-
-    // console.log(res[0][3]);
     return res;
-}
+};
 
 const substract_arrays = (arr1, arr2) => {
     var res = [], aux = false;
@@ -103,14 +104,17 @@ const substract_arrays = (arr1, arr2) => {
     return res;
 }
 
-const add_course = (course) => {
-    let courses = JSON.parse(fs.readFileSync("./courses.json"));
+const add_course = async (course) => {
+    //let courses = JSON.parse(fs.readFileSync("./courses.json"));
+    let courses = await Course.find();
     if (!exists(course.id, courses)) {
-        courses.push(course);
-        update_json("./courses.json", courses);
+        //courses.push(course);
+        //update_json("./courses.json", courses);
+        await Course.create(course);
+        return "Curso creado exitosamente"
     }
     else {
-        throw new Error("course already exists");
+        return "Un curso con este ID ya existe";
     }
 }
 
@@ -133,25 +137,28 @@ const update_json = (file, content) => {
     });
 }
 
-const find_course = (id) => {
-    let courses = JSON.parse(fs.readFileSync("./courses.json"));
-    // console.log(courses);
+const find_course = async (id) => {
+    //let courses = JSON.parse(fs.readFileSync("./courses.json"));
+    console.log('holi');
+    let courses = await Course.find();
+    console.log(courses);
     if (id == '*') return courses;
     if (course = courses.find(c => c.id == id)) {
         return course;
     }
     else {
-        throw new Error("course with id "+id+" does not exists");
+        throw new Error("Course with id "+id+" does not exists");
     }
 }
 
-const find_user = (id) => {
-    let users = JSON.parse(fs.readFileSync("./users.json"));
+const find_user = async (id) => {
+    //let users = JSON.parse(fs.readFileSync("./users.json"));
+    let users = await User.find();
     if (user = users.find(u => u.id == id)) {
         return user;
     }
     else {
-        throw new Error("user with id "+id+" does not exists");
+        throw new Error("User with id "+id+" does not exists");
     }
 }
 

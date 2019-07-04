@@ -99,19 +99,26 @@ app.post("/login", async (req, res) => {
     const id = req.body.id;
     const user = await User.findOne({ id: id });
     if (user !== null) {
-        global.current_user = user;
-        console.log(global.current_user.id);
-        const logged_user = new Logged({
-            name: user.name,
-            id: user.id,
-            mail: user.mail,
-            phone: user.phone,
-            pass: user.pass,
-            role: user.role,
-            courses: user.courses
-        });
+        if(user.pass === req.body.pass){
+            global.current_user = user;
+            console.log(global.current_user.id);
+            const logged_user = new Logged({
+                name: user.name,
+                id: user.id,
+                mail: user.mail,
+                phone: user.phone,
+                pass: user.pass,
+                role: user.role,
+                courses: user.courses
+            });
         await logged_user.save();
         res.redirect("/profile?id="+req.body.id);
+        }
+        else{
+            res.render("login", {
+                alert: 'Nombre de usuario o contraseña equivocada!'
+            });
+        }
     }
     else {
         res.render("register");
@@ -196,6 +203,7 @@ app.get("/courses", (req, res) => {
     if (global.current_user != null && global.current_user.role == "coordinador") {
         args["course_students"] = fncs.get_all_course_users();
     }
+    console.log(args.courses);
     res.render("courses", args);
 });
 
@@ -230,15 +238,12 @@ app.post("/courses", (req, res) => {
 });
 
 app.post("/new_course", (req, res) => {
-    course = new Course(req.body.id,
-                        req.body.name,
-                        req.body.desc,
-                        req.body.price,
-                        req.body.modality,
-                        req.body.hours,
-                        "disonible", [])
-    fncs.add_course(course);
-    res.redirect("/profile?id="+global.current_user.id);
+    course = new Course(req.body);
+    var str = fncs.add_course(course);
+    //res.redirect("/profile?id="+global.current_user.id);
+    res.render("profile", {
+        alert: str
+    })
 });
 
 app.get("*", (req, res) => {
