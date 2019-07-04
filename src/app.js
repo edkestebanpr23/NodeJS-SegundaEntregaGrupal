@@ -239,11 +239,8 @@ app.post("/courses", (req, res) => {
 
 app.post("/new_course", (req, res) => {
     course = new Course(req.body);
-    var str = fncs.add_course(course);
-    //res.redirect("/profile?id="+global.current_user.id);
-    res.render("profile", {
-        alert: str
-    })
+    fncs.add_course(course);
+    res.redirect("/profile?id="+global.current_user.id);
 });
 
 app.get("*", (req, res) => {

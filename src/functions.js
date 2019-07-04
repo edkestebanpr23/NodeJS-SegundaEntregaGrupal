@@ -118,8 +118,9 @@ const add_course = async (course) => {
     }
 }
 
-const change_course_state = (id) => {
+const change_course_state = async (id) => {
     let courses = JSON.parse(fs.readFileSync("./courses.json"));
+    //let courses = await Course.find();
     if (course = courses.find(c => c.id == id)) {
         course["status"] = (course["status"] == "disponible") ?
                           course["status"] = "cerrado" : course["status"] = "disponible";
@@ -153,13 +154,11 @@ const find_course = async (id) => {
 
 const find_user = async (id) => {
     //let users = JSON.parse(fs.readFileSync("./users.json"));
-    let users = await User.find();
-    if (user = users.find(u => u.id == id)) {
-        return user;
-    }
-    else {
-        throw new Error("User with id "+id+" does not exists");
-    }
+    let user = await User.findOne({id: id});
+    return user;
+    //else {
+    //    throw new Error("User with id "+id+" does not exists");
+    //}
 }
 
 const log_user = (id) => {
