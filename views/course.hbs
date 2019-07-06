@@ -1,0 +1,43 @@
+{{>header}}
+<div class="container">
+  <table class="table">
+	<h2>Alumnos matriculados en el curso {{course.name}}</h2>
+	
+	<br>
+	<thead class="thead-dark">
+		<th>Nombre</th>
+		<th>Mail</th>
+		<th>Teléfono</th>
+		<th></th>
+		<th></th>
+	</thead>
+
+	{{#each students}}
+	<tr>
+		<td>{{this.name}}</td>
+		<td>{{this.mail}}</td>
+		<td>{{this.phone}}</td>
+		<td>
+			<button class="btn btn-danger" id="select_course" onclick="remove_user({{this.id}}, {{../course.id}})">Eliminar</button>
+		</td>
+	<tr>
+	{{/each}}
+  </table>
+
+  {{#if_eq user_id "."}}{{else}}
+    <a class="btn btn-secondary" href="/profile?id={{user_id}}">atrás</a>
+  {{/if_eq}}
+</div>
+
+<script>
+    function remove_user(id, c_id) {
+        $.post("/course", {id: id.toString(), course_id: c_id}, function (data) {
+            // console.log(data);
+        }).done(function () {
+            alert("Estudiante eliminada con éxito!");
+            location.reload();
+        });
+    }
+</script>
+
+{{>footer}}

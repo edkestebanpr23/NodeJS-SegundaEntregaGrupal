@@ -1,5 +1,5 @@
 {{>header}}
-
+<div class="container">
 <div class="container-fluid">
     <table class="table">
         <h2>Cursos disponibles</h2>
@@ -30,6 +30,9 @@
             <td>
                 <button class="btn btn-secondary" id="select_course" onclick="change_state({{this.id}})">Cambiar estado</button>
             </td>
+			<td>
+                <a href="/course?id={{this.id}}"><button class="btn btn-secondary" id="select_course">Ver alumnos{{this.id}}</button></a>
+            </td>
             {{/if_eq}}
 
             {{#if_eq ../user.role "aspirante"}}
@@ -39,7 +42,7 @@
             {{/if_eq}}
         </tr>
 
-        {{#if_eq ../user.role "coordinador"}}
+        <!--{{#if_eq ../user.role "coordinador"}}
         {{#if_M this.students.length 0}}
         <th></th>
         <th></th>
@@ -54,7 +57,7 @@
         <br>
         {{/each}}
         {{/if_M}}
-        {{/if_eq}}
+        {{/if_eq}}-->
 
         {{/each}}
     </table>
@@ -68,7 +71,7 @@
     <a class="btn btn-secondary" href="/profile?id={{user.id}}">atrás</a>
     {{/if}}
 </div>
-
+</div>
 
 {{>footer}}
 <script>
