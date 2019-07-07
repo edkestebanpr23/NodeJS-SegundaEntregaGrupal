@@ -4,6 +4,10 @@
     <table class="table">
         <h2>Cursos disponibles</h2>
         <p>Aquí puedes ver los cursos no inscritos, es decir, aquéllos a los que te puedes inscribir</p>
+		{{#if_eq user.role "docente"}}
+		<p>como docente, puedes matricularte al curso en el que vayas a dar clase</p>
+		{{/if_eq}}
+		
         <br>
         <thead class="thead-dark">
             <th>Nombre del curso</th>
@@ -26,15 +30,21 @@
             <td>{{this.hours}}</td>
             <td>{{this.status}}</td>
             <td>{{this.students.length}}</td>
+
             {{#if_eq ../user.role "coordinador"}}
             <td>
-                <button class="btn btn-secondary" id="select_course" onclick="change_state({{this.id}})">Cambiar estado</button>
+                <button class="btn btn-sm btn-secondary" id="select_course" onclick="change_state({{this.id}})">Cambiar estado</button>
             </td>
 			<td>
-                <a href="/course?id={{this.id}}"><button class="btn btn-secondary" id="select_course">Ver alumnos{{this.id}}</button></a>
+                <a href="/course?id={{this.id}}"><button class="btn btn-sm btn-secondary" id="select_course">Ver alumnos</button></a>
             </td>
             {{/if_eq}}
 
+			{{#if_eq ../user.role "docente"}}
+            <td>
+                <button class="btn btn-success" id="select_course" onclick="cc({{this.id}}, {{../user.id}})">Matricularse como docente</button>
+            </td>
+            {{/if_eq}}
             {{#if_eq ../user.role "aspirante"}}
             <td>
                 <button class="btn btn-success" id="select_course" onclick="cc({{this.id}}, {{../user.id}})">Matricular</button>

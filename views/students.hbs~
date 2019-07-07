@@ -26,7 +26,7 @@
 	{{/each}}
   </table>
 
-  {{#if_eq user "."}}{{else}}
+  {{#if_eq user_id "."}}{{else}}
     <a class="btn btn-secondary" href="/profile?id={{user.id}}">atrás</a>
   {{/if_eq}}
 </div>

@@ -23,7 +23,7 @@
 
     <br><br>
 
-    <form action="/profile_edit" method="post" autocomplete="on">
+    <form action="/profile_edit?id={{user.id}}" method="post" autocomplete="on">
         <h2> Editar datos personales</h2>
         <div class="form-group">
             <label> Nombre</label>
@@ -41,6 +41,16 @@
             <label> Password</label>
             <input class="form-control" name="pass" type="password" placeholder="password" />
         </div>
+		{{#if_eq curr_user.role "coordinador"}}
+		<div class="form-group">
+            <label> Rol</label>
+			<select name="role" class="custom-select" id="inputGroupSelect01">
+				<option selected value="aspirante">Aspirante</option>
+				<option value="docente">Docente</option>
+				<option value="coordinador">Coordinador</option>
+			</select>
+        </div>		
+		{{/if_eq}}
         <div class="form-group">
             <button class="btn btn-primary">Actualizar Datos</button>
         </div>

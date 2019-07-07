@@ -1,0 +1,34 @@
+{{>header}}
+<div class="container">
+  <table class="table">
+	<h2>Alumnos registrados en el sistema</h2>
+	
+	<br>
+	<thead class="thead-dark">
+		<th>Id</th>
+		<th>Nombre</th>
+		<th>Mail</th>
+		<th>Teléfono</th>
+		<th></th>
+		<th></th>
+	</thead>
+
+	{{#each students}}
+	<tr>
+		<td>{{this.id}}</td>
+		<td>{{this.name}}</td>
+		<td>{{this.mail}}</td>
+		<td>{{this.phone}}</td>
+		<td>
+			<a href="/edit_user?id={{this.id}}"<button class="btn btn-danger">Editar datos</button></a>
+		</td>
+	<tr>
+	{{/each}}
+  </table>
+
+  {{#if_eq user_id "."}}{{else}}
+    <a class="btn btn-secondary" href="/profile?id={{user.id}}">atrás</a>
+  {{/if_eq}}
+</div>
+
+{{>footer}}

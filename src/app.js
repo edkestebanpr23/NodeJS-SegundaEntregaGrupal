@@ -19,9 +19,6 @@ var Course = require('../models/course');
 var Logged = require('../models/logged');
 Logged.remove({}, function(err, removed) {});
 
-users = [];
-courses = [];
-
 //Inicializacion de una BD virgen
 const queryUsers = User.estimatedDocumentCount( async (err,count) => {
     if(count == 0){
@@ -35,7 +32,22 @@ const queryUsers = User.estimatedDocumentCount( async (err,count) => {
             courses: []
         });
         await nuevoCoordinador.save();
-        console.log('No se encontraron usuarios previos. Puede loguearse con el id: 0 y pass: admin');
+
+        const nuevoDocente = new User({
+            name: 'Docente1',
+            id: 1,
+            mail: 'docente@tdea.com',
+            phone: 12345,
+            pass: 'docente',
+            role: 'docente',
+            courses: []
+        });
+        await nuevoDocente.save();
+		
+        console.log('No se encontraron usuarios previos.\n'+
+		'Se crearon nuevos usuarios:'+
+		'	Coordinador -> id: 0 y pass: admin'+
+		'	Docente -> id: 1 y pass: docente');
     }
     else{
         console.log('Se han encontrado usuarios guardados en la base de datos');
@@ -47,8 +59,8 @@ const queryCourses = Course.estimatedDocumentCount( async (err,count) => {
     if(count == 0){
         const nuevoCurso = new Course({
             id: 0,
-            name: 'Curso por defecto',
-            description: 'Placeholder para probar la inserción',
+            name: 'Curso por defecto 1',
+            description: 'descripción curso 1',
             price: -1,
             modality: 'nocturna',
             hours: 0,
@@ -56,6 +68,19 @@ const queryCourses = Course.estimatedDocumentCount( async (err,count) => {
             students: []
         });
         await nuevoCurso.save();
+		
+		const nuevoCurso2 = new Course({
+            id: 1,
+            name: 'Curso por defecto 2',
+            description: 'descripción curso 2',
+            price: -1,
+            modality: 'nocturna',
+            hours: 0,
+            status: 'disponible',
+            students: []
+        });
+        await nuevoCurso2.save();
+		
         console.log('No se encontraron cursos previos.');
     }
     else{
@@ -170,25 +195,39 @@ app.get("/profile", async (req, res) => {
     }
 });
 
-app.get("/profile_edit", (req, res) => {
-    res.render("profile_edit");
+app.get("/profile_edit", async (req, res) => {
+	if (req.session.user != null) {
+		res.render("profile_edit", {curr_user: await User.findOne({id: req.session.user}),
+									user: await User.findOne({id: req.query.id})});
+	}
+	else {
+		res.render("error");
+	}
 });
 
 app.post("/profile_edit", async (req, res) => {
-    var user = await User.findOne({id: req.session.user});
+    var user = await User.findOne({id: req.query.id});console.log(req.query.id);
     var logged = await Logged.findOne({id: req.session.user});
 	
     if (req.body.name != "" && typeof req.body.name == 'string') {
-		logged.name = user.name = req.body.name;
+		user.name = req.body.name;
+		if (req.query.id == logged.id) logged.name = req.body.name;
 	}
     if (req.body.mail != "" && typeof req.body.mail == 'string') {
-		logged.mail = user.mail = req.body.mail;
+		user.mail = req.body.mail;
+		if (req.query.id == logged.id) logged.mail = req.body.mail;
 	}
     if (req.body.pass != "" && typeof req.body.pass == 'string') {
-		logged.pass = user.pass = req.body.pass;
+		user.pass = req.body.pass;
+		if (req.query.id == logged.id) logged.pass = req.body.pass;
 	}
     if (req.body.phone != "" && typeof req.body.phone == 'number') {
-		logged.phone = user.phone = req.body.phone;
+		user.phone = req.body.phone;
+		if (req.query.id == logged.id) logged.phone = req.body.phone;
+	}
+	if ("role" in req.body) {console.log("!!_________________");
+		user.role = req.body.role;
+		if (req.query.id == logged.id) logged.role = req.body.role;
 	}
  
     await user.save();
@@ -197,7 +236,7 @@ app.post("/profile_edit", async (req, res) => {
     res.redirect("/profile?id="+req.session.user);
 });
 
-app.get("/courses", async (req, res) => {	
+app.get("/courses", async (req, res) => {
     var args = {
         user: await User.findOne({id: req.session.user}),
         courses: await Course.find({})
@@ -205,24 +244,8 @@ app.get("/courses", async (req, res) => {
 
 	var logged = await Logged.findOne({});
     if (logged != null) {
-		if (logged.role == "coordinador") {
-	        // args["course_students"] = fncs.get_all_course_users();
-		}
-		else {
-			args["courses"] = fncs.substract_arrays(await Course.find({}), await fncs.get_user_courses(logged));
-		}/*
-		else {	
-			// const user = await User.findOne({id: global.current_user.id});
-			const user_courses = global.current_user.courses;
-			// console.log(user_courses+"->");
-			var courses = [];
-			for (var c = 0; c < user_courses.length; c++) {
-				courses.push(Course.findOne({_id: user_courses[c]}));
-			}
-			console.log("joder");
-			console.log(courses);
-			args["courses"] = courses;
-		}*/
+		args["courses"] = fncs.substract_arrays(await Course.find({}),
+												await fncs.get_user_courses(logged));
     }
 	
     res.render("courses", args);
@@ -247,9 +270,6 @@ app.post("/courses", (req, res) => {
                 fncs.del_course_from_user(req.body.id, req.session.user);
 				update_logged_user(req.session.user);
             }
-            /*else {  // coordinador deleting user from course
-                fncs.del_user_from_course(fncs.find_user(req.body.uid), req.body.id);
-            }*/
 
             res.redirect("/profile?id="+req.session.user);
         }
@@ -259,14 +279,30 @@ app.post("/courses", (req, res) => {
     }
 });
 
+app.get("/students", async (req, res) => {
+	if (req.session.user != null) {
+		res.render("students", {students: await User.find({}),
+							    curr_user: req.session.user});
+	}
+	else {
+		res.render("error");
+	}
+});
+
 app.get("/course", async (req, res) => {
-	var course = await Course.findOne({id: req.query.id});
-	var args = {
-		course: course,
-		students: await fncs.get_course_users(course),
-		user_id: req.session.user != null ? req.session.user : "."
-	};
-	res.render("course", args);
+	if (req.session.user != null) {
+		var course = await Course.findOne({id: req.query.id});
+		var args = {
+			course: course,
+			students: await fncs.get_course_users(course),
+			user: req.session.user != null ? await User.findOne({id: req.session.user}) : "."
+		};
+	
+		res.render("course", args);
+	}
+	else {
+		res.render("error");
+	}
 });
 
 app.post("/course", async (req, res) => {
@@ -276,7 +312,6 @@ app.post("/course", async (req, res) => {
 });		 
 
 app.post("/new_course", (req, res) => {
-	console.log(req.body);
     var course = new Course(req.body);
     fncs.add_course(course);
     res.redirect("/profile?id="+req.session.user);

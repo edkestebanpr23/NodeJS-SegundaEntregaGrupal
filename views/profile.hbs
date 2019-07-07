@@ -1,7 +1,7 @@
 {{>header}}
 <div class="container">
 <div class="container-fluid">
-    <h2>Datos Usuario <small>{{user.name}}</small></h2>
+    <h2>Datos Usuario <strong>{{user.name}}</strong></h2>
     <div class="container-fluid">
         <table class="table">
             <thead class="thead-dark">
@@ -68,7 +68,7 @@
 				<select name="modality" class="custom-select" id="inputGroupSelect01">
 					<option selected value="presencial">Presencial</option>
 					<option value="virtual">Virtual</option>
-				  </select>
+				</select>
             </div>
         </div>
 		<div class="form-group row">
@@ -94,6 +94,10 @@
             <th>Horas</th>
             <th>Estado</th>
             <th></th>
+			{{#if_eq user.role "docente"}}
+			<th>Nº matriculados</th>
+			<th></th>
+			{{/if_eq}}
         </thead>
         {{#each courses}}
         <tr>
@@ -106,6 +110,13 @@
             <td>
                 <button class="btn btn-danger" id="select_course" onclick="cc2({{this.id}})">Eliminar</button>
             </td>
+			
+			{{#if_eq ../user.role "docente"}}
+            <td>{{this.students.length}}</td>
+			<td>
+                <a href="/course?id={{this.id}}"><button class="btn btn-sm btn-secondary" id="select_course">Ver alumnos</button></a>
+            </td>
+			{{/if_eq}}
         </tr>
         {{/each}}
     </table>
@@ -117,6 +128,9 @@
     <div class="row">
         <a class="btn btn-success" href="/profile_edit?id={{user.id}}">Editar datos personales</a>&nbsp;&nbsp;
         <a class="btn btn-success" href="/courses">Ver todos cursos</a>&nbsp;&nbsp;
+		{{#if_eq user.role "coordinador"}}
+			<a class="btn btn-success" href="/students">Ver todos usuarios registrados</a>&nbsp;&nbsp;
+		{{/if_eq}}
         {{!-- <a class="btn btn-success" href="/login">Login</a>&nbsp;&nbsp;
         <a class="btn btn-primary" href="/register">Register</a>&nbsp;&nbsp;
         <a class="btn btn-info" href="/courses">Ver cursos</a> --}}
