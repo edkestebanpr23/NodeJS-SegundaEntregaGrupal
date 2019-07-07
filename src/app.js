@@ -43,9 +43,21 @@ const queryUsers = User.estimatedDocumentCount( async (err,count) => {
             courses: []
         });
         await nuevoDocente.save();
+
+		const nuevoEstudiante = new User({
+            name: 'Estudiante1',
+            id: 2,
+            mail: 'esteban@tdea.com',
+            phone: 12345,
+            pass: 'estudiante',
+            role: 'aspirante',
+            courses: []
+        });
+        await nuevoEstudiante.save();
 		
         console.log('No se encontraron usuarios previos.\n'+
 		'Se crearon nuevos usuarios:'+
+		'	Estudiante -> id: 2 y pass: estudiante'+
 		'	Coordinador -> id: 0 y pass: admin'+
 		'	Docente -> id: 1 y pass: docente');
     }
@@ -88,8 +100,6 @@ const queryCourses = Course.estimatedDocumentCount( async (err,count) => {
     }
 });
 
-global.current_user = null;
-
 //settings
 app.set('port', process.env.PORT || 3000); //tomar puerto del sistema o 3000
 app.set("view engine", "hbs");
@@ -119,6 +129,7 @@ app.get("/login", (req, res) => {
 app.post("/login", async (req, res) => {
     const id = req.body.id;
     const user = await User.findOne({ id: id });
+
     if (user !== null) {
         if(user.pass === req.body.pass) {
             const logged_user = new Logged({
@@ -190,7 +201,7 @@ app.get("/profile", async (req, res) => {
     else {
         res.render("profile", {
             user: user,
-            courses: await fncs.get_user_courses(user)  //fncs.get_user_courses(fncs.find_user(req.query.id))
+            courses: await fncs.get_user_courses(user)
         });
     }
 });
@@ -225,7 +236,7 @@ app.post("/profile_edit", async (req, res) => {
 		user.phone = req.body.phone;
 		if (req.query.id == logged.id) logged.phone = req.body.phone;
 	}
-	if ("role" in req.body) {console.log("!!_________________");
+	if ("role" in req.body) {
 		user.role = req.body.role;
 		if (req.query.id == logged.id) logged.role = req.body.role;
 	}
@@ -256,7 +267,6 @@ app.post("/courses", (req, res) => {
         if (req.body.action == "add") {
             fncs.add_user_to_course(req.session.user, req.body.id);
 			fncs.add_course_to_user(req.body.id, req.session.user);
-			update_logged_user(req.session.user);
 			
             res.redirect("/profile?id="+req.session.user);
         }
@@ -268,7 +278,6 @@ app.post("/courses", (req, res) => {
             if (req.body.action == "del") {  // user deleting himself from course
                 fncs.del_user_from_course(req.session.user, req.body.id);
                 fncs.del_course_from_user(req.body.id, req.session.user);
-				update_logged_user(req.session.user);
             }
 
             res.redirect("/profile?id="+req.session.user);
@@ -322,11 +331,6 @@ app.get("*", (req, res) => {
         estudiante: "error"
     });
 });
-
-
-const update_logged_user = async (user_id) => {
-	global.current_user = await User.findOne({id: user_id});;
-};
 
 //starting the server
 app.listen(app.get('port'), () => {

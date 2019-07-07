@@ -5,36 +5,6 @@ var Logged = require('../models/logged');
 var Course = require('../models/course');
 
 
-const add_user = (user) => {
-    let users = JSON.parse(fs.readFileSync("./users.json"));
-    if (!exists(user.name, users)) {
-        users.push(user);
-        fs.writeFile("./users.json", JSON.stringify(users), (e) => {
-            if (e) throw(e);
-            console.log("success creating users.json");
-        });
-    }
-    else {
-        throw new Error("user already exists");
-    }
-};
-
-const modify_user = (user, args) => {
-    let users = JSON.parse(fs.readFileSync("./users.json"));
-    if (usr = users.find(u => u.id == user.id)) {
-        if ("name" in args) { usr["name"] = args["name"]; }
-        if ("mail" in args) { usr["mail"] = args["mail"]; }
-        if ("phone" in args) { usr["phone"] = args["phone"]; }
-        if ("pass" in args) { usr["pass"] = args["pass"]; }
-        /*usr["name"] = (usr["name"] != new_user["name"]) ? new_user["name"] : user["name"];
-        usr["mail"] = (usr["mail"] != new_user["mail"]) ? new_user["mail"] : user["mail"];
-        usr["phone"] = (usr["phone"] != new_user["phone"]) ? new_user["phone"] : user["phone"];
-        usr["pass"] = (usr["pass"] != new_user["pass"]) ? new_user["pass"] : user["pass"];*/
-
-        update_json("./users.json", users);
-    }
-};
-
 const add_user_to_course = async (user_id, course_id) => {
 	const student = await User.findOne({id: user_id});
 	const course = await Course.findOne({id: course_id});
@@ -122,11 +92,8 @@ const substract_arrays = (arr1, arr2) => {
 };
 
 const add_course = async (course) => {
-    //let courses = JSON.parse(fs.readFileSync("./courses.json"));
     let courses = await Course.find();
     if (!exists(course.id, courses)) {
-        //courses.push(course);
-        //update_json("./courses.json", courses);
         await Course.create(course);
         return "Curso creado exitosamente";
     }
@@ -141,16 +108,7 @@ const change_course_state = async (course_id) => {
 	await Course.updateOne({id: course_id}, {$set: {status: new_status}});
 };
 
-const update_json = (file, content) => {
-    fs.writeFileSync(file, JSON.stringify(content), (e) => {
-        if (e) throw(e);
-        console.log("success creating "+file);
-    });
-};
-
 const find_course = async (id) => {
-    //let courses = JSON.parse(fs.readFileSync("./courses.json"));
-    console.log('holi');
     let courses = await Course.find();
     console.log(courses);
     if (id == '*') return courses;
@@ -163,58 +121,8 @@ const find_course = async (id) => {
 };
 
 const find_user = async (id) => {
-    //let users = JSON.parse(fs.readFileSync("./users.json"));
     let user = await User.findOne({id: id});
     return user;
-    //else {
-    //    throw new Error("User with id "+id+" does not exists");
-    //}
-};
-
-const log_user = (id) => {
-    let users = JSON.parse(fs.readFileSync("./users.json"));
-    let logged_users = [];
-    if (exists(id, users)) {
-        // user already registered
-        if (!is_logged(id)) {
-            logged_users.push(find_user(id));
-            fs.writeFileSync("./logged.json", JSON.stringify(logged_users), (e) => {
-                if (e) throw(e);
-                console.log("success creating logged.json");
-            });
-        }
-
-        return 1;
-    }
-    else {
-        // user have to register
-        return -1;
-    }
-};
-
-const logout_user = (id) => {
-    if (is_logged(id)) {
-        let logged_users = JSON.parse(fs.readFileSync("./logged.json"));
-        if (user = logged_users.find(u => u.id == id)) {
-            logged_users.splice(logged_users.indexOf(user), 1);
-            update_json("./logged.json", logged_users);
-        }
-    }
-};
-
-const is_logged = (id) => {
-    //let users = JSON.parse(fs.readFileSync("./logged.json"));
-    let users = JSON.parse(fs.readFileSync("./logged.json"));
-    if (user = users.find(u => u.id == id)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-};
-
-const read_file = (file) => {
-    return JSON.parse(fs.readFileSync(file));
 };
 
 const exists = (id, array) => {
@@ -222,13 +130,12 @@ const exists = (id, array) => {
 };
 
 module.exports = {
-    add_user, modify_user, add_course,
+    add_course,
     find_course, find_user,
     add_user_to_course, add_course_to_user,
 	del_user_from_course, del_course_from_user,
     change_course_state,
     get_user_courses, get_course_users,
     get_all_course_users,
-    substract_arrays,
-    is_logged, log_user, logout_user
+    substract_arrays
 };
